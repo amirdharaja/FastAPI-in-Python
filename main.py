@@ -1,9 +1,9 @@
-from fastapi import Body, APIRouter, status
+from fastapi import Body, APIRouter, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime
 import uvicorn
 import databases
 
@@ -133,11 +133,25 @@ async def login(user: LoginValidator):
         response = {'detail':'Wrong password', 'status': 400}
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=response)
 
-    token = genrate_token(data={'user_id':is_exist.id, 'expire':str(datetime.now() + timedelta(days=30))})
+    data = {
+        'user_id': is_exist.id,
+        'role': is_exist.role
+    }
+    token = genrate_token(data)
     response = {'detail':'Login Success','auth token':  token, 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
 
+@auth_router.post('/refresh')
+async def refresh_token(token: str = Header(None)):
+    user = verify_token(token)
+    if not user:
+        response = {'detail':'Invalid Token', 'status': 403}
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=response)
+
+    token = genrate_token(user)
+    response = {'detail':'Token Refreshed','auth token':  token, 'status': 200}
+    return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
 app.include_router(user_router, prefix='/users')
 app.include_router(auth_router, prefix='/auth')
