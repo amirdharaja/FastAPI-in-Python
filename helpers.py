@@ -23,9 +23,25 @@ def genrate_token(user):
     token = jwt.encode(data, JWT_SECRET, JWT_ALGORITHM).decode('utf-8')
     return 'Token '+token
 
-def verify_token(token):
-    try:
-        user = jwt.decode(token, JWT_SECRET, JWT_ALGORITHM)
-        return user
-    except:
+def verify_token(token=None):
+    if token:
+        try:
+            user = jwt.decode(token, JWT_SECRET, JWT_ALGORITHM)
+            if user['expire'] < str(datetime.now):
+                return user
+            return False
+        except:
+            return False
+    else:
         return False
+
+def verify_token_with_role(token=None, expected_role=None):
+    if token and expected_role:
+        try:
+            user = jwt.decode(token, JWT_SECRET, JWT_ALGORITHM)
+            if user['role'] == expected_role and user['expire'] < str(datetime.now):
+                return user
+            return False
+        except:
+            return False
+    return False
