@@ -38,7 +38,7 @@ job_router = APIRouter()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
+    allow_origins=['http://localhost:8080'],
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*']
@@ -164,7 +164,7 @@ async def login(user: LoginValidator):
         'role': is_exist.role.value
     }
     token = genrate_token(data)
-    response = {'detail':'LOGIN SUCCESS','auth token':  token, 'status': 200}
+    response = {'detail':'LOGIN SUCCESS','token':  token, 'name': is_exist.first_name, 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
 
@@ -176,7 +176,7 @@ async def refresh_token(token: str = Header(None)):
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=response)
 
     token = genrate_token(user)
-    response = {'detail':'TOKEN REFRESHED','auth token':  token, 'status': 200}
+    response = {'detail':'TOKEN REFRESHED','token':  token, 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
 

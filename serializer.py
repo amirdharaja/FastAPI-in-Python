@@ -27,5 +27,3 @@ def user_serializer(data, is_multiple=None):
             'updated_at': str(data.updated_at),
         }
         return serialized_data
-
-

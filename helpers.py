@@ -21,7 +21,7 @@ def genrate_token(user):
         'expire':str(datetime.now() + timedelta(days=30)),
     }
     token = jwt.encode(data, JWT_SECRET, JWT_ALGORITHM).decode('utf-8')
-    return 'Token '+token
+    return token
 
 def verify_token(token=None):
     if token:
