@@ -1,0 +1,793 @@
+openapi: 3.0.2
+info:
+  title: REST API using FastAPI sqlite Async endpoits
+  version: 0.1.0
+paths:
+  /users/:
+    get:
+      summary: Get All Users
+      operationId: get_all_users_users__get
+      parameters:
+        - required: false
+          schema:
+            title: Skip
+            type: integer
+            default: 0
+          name: skip
+          in: query
+        - required: false
+          schema:
+            title: Paginate
+            type: integer
+            default: 20
+          name: paginate
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Get All Users Users  Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create User
+      operationId: create_user_users__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserValidator'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  '/users/{user_id}':
+    get:
+      summary: Get User
+      operationId: get_user_users__user_id__get
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: integer
+          name: user_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Update User
+      operationId: update_user_users__user_id__put
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: integer
+          name: user_id
+          in: path
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserValidator'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete User
+      operationId: delete_user_users__user_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: User Id
+            type: integer
+          name: user_id
+          in: path
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  '/users/jobs/{job_id}':
+    post:
+      summary: Apply Job
+      operationId: apply_job_users_jobs__job_id__post
+      parameters:
+        - required: true
+          schema:
+            title: Job Id
+            type: integer
+          name: job_id
+          in: path
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppliedJobValidator'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppliedJobValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  '/users/jobs/my/{apply_id}':
+    get:
+      summary: Get My Job
+      operationId: get_my_job_users_jobs_my__apply_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Apply Id
+            type: integer
+          name: apply_id
+          in: path
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/jobs/my:
+    get:
+      summary: Get My All Jobs
+      operationId: get_my_all_jobs_users_jobs_my_get
+      parameters:
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  '/users/favourite/{job_id}':
+    post:
+      summary: Add Favourite
+      operationId: add_favourite_users_favourite__job_id__post
+      parameters:
+        - required: true
+          schema:
+            title: Job Id
+            type: integer
+          name: job_id
+          in: path
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  '/users/favourite/{favourite_id}':
+    delete:
+      summary: Remove Favourite
+      operationId: remove_favourite_users_favourite__favourite_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: Favourite Id
+            type: integer
+          name: favourite_id
+          in: path
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/favourites/all:
+    get:
+      summary: Get Favourite
+      operationId: get_favourite_users_favourites_all_get
+      parameters:
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/login:
+    post:
+      summary: Login
+      operationId: login_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginValidator'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/refresh:
+    post:
+      summary: Refresh Token
+      operationId: refresh_token_auth_refresh_post
+      parameters:
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /jobs/:
+    get:
+      summary: Get All Jobs
+      operationId: get_all_jobs_jobs__get
+      parameters:
+        - required: false
+          schema:
+            title: Skip
+            type: integer
+            default: 0
+          name: skip
+          in: query
+        - required: false
+          schema:
+            title: Paginate
+            type: integer
+            default: 20
+          name: paginate
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Get All Jobs Jobs  Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Job
+      operationId: create_job_jobs__post
+      parameters:
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobValidator'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /jobs/category:
+    get:
+      summary: Get Categories
+      operationId: get_categories_jobs_category_get
+      parameters:
+        - required: false
+          schema:
+            title: Skip
+            type: integer
+            default: 0
+          name: skip
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Get Categories Jobs Category Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobCategoryValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Category
+      operationId: create_category_jobs_category_post
+      parameters:
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCategoryValidator'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobCategoryValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  '/jobs/{job_id}':
+    get:
+      summary: Get Job
+      operationId: get_job_jobs__job_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Job Id
+            type: integer
+          name: job_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Update Job
+      operationId: update_job_jobs__job_id__put
+      parameters:
+        - required: true
+          schema:
+            title: Job Id
+            type: integer
+          name: job_id
+          in: path
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobValidator'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Job
+      operationId: delete_job_jobs__job_id__delete
+      parameters:
+        - required: true
+          schema:
+            title: Job Id
+            type: integer
+          name: job_id
+          in: path
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /jobs/my/posted:
+    get:
+      summary: Get All My Posted Jobs
+      operationId: get_all_my_posted_jobs_jobs_my_posted_get
+      parameters:
+        - required: false
+          schema:
+            title: Token
+            type: string
+          name: token
+          in: header
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Get All My Posted Jobs Jobs My Posted Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobValidator'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AppliedJobValidator:
+      title: AppliedJobValidator
+      type: object
+      properties:
+        job_id:
+          title: Company Name
+          type: integer
+        status:
+          $ref: '#/components/schemas/JobStatus'
+    Gender:
+      title: Gender
+      enum:
+        - male
+        - female
+        - other
+      description: An enumeration.
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    JobCategoryValidator:
+      title: JobCategoryValidator
+      required:
+        - name
+      type: object
+      properties:
+        id:
+          title: Id
+          type: integer
+        added_by:
+          title: Added By
+          type: integer
+        name:
+          title: Job category name
+          maxLength: 255
+          type: string
+    JobStatus:
+      title: JobStatus
+      enum:
+        - created
+        - applied
+        - selected
+        - rejected
+        - filled
+        - closed
+        - deleted
+      description: An enumeration.
+    JobType:
+      title: JobType
+      enum:
+        - full time
+        - part time
+        - internship
+      description: An enumeration.
+    JobValidator:
+      title: JobValidator
+      required:
+        - category
+        - company_name
+        - job_title
+        - job_type
+        - experiance_min
+        - experiance_max
+        - job_count
+        - location
+        - description_short
+      type: object
+      properties:
+        id:
+          title: Id
+          type: integer
+        created_by:
+          title: Created By
+          type: integer
+        category:
+          title: Job category
+          type: string
+        company_name:
+          title: Company Name
+          maxLength: 255
+          type: string
+        job_title:
+          title: Job Title
+          maxLength: 255
+          type: string
+        job_type:
+          $ref: '#/components/schemas/JobType'
+        experiance_min:
+          title: Minimum experiance required for the Job
+          type: number
+        experiance_max:
+          title: Maximum experiance required for the Job
+          type: number
+        job_count:
+          title: Available Job count
+          type: integer
+        location:
+          title: Job (Company) Location
+          maxLength: 1024
+          type: string
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        description_short:
+          title: Short description about job
+          maxLength: 255
+          type: string
+        description_long:
+          title: Long description about job
+          type: string
+    LoginValidator:
+      title: LoginValidator
+      required:
+        - username
+        - password
+      type: object
+      properties:
+        username:
+          title: Username of the User
+          maxLength: 255
+          type: string
+        password:
+          title: Password of the User
+          maxLength: 255
+          minLength: 6
+          type: string
+    Role:
+      title: Role
+      enum:
+        - user
+        - recruiter
+        - admin
+      description: An enumeration.
+    UserValidator:
+      title: UserValidator
+      required:
+        - username
+        - password
+        - first_name
+      type: object
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username of the User
+          maxLength: 255
+          type: string
+        password:
+          title: Password of the User
+          maxLength: 255
+          minLength: 6
+          type: string
+        first_name:
+          title: First name of the User
+          maxLength: 255
+          type: string
+        last_name:
+          title: Last name of the User
+          maxLength: 255
+          type: string
+        phone:
+          title: Phone number of the User
+          maxLength: 32
+          type: string
+        gender:
+          $ref: '#/components/schemas/Gender'
+        role:
+          $ref: '#/components/schemas/Role'
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            type: string
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
