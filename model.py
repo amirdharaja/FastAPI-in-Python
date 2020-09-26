@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Table, Column, Integer, Float, Boolean, String, DateTime, 
+    Table, Column, Integer, Float, Boolean, String, DateTime, Text,
     ForeignKey, Enum, TIMESTAMP, MetaData, create_engine
 )
 from sqlalchemy.sql import func
@@ -25,8 +25,8 @@ class Role(enum.Enum):
     a = 'admin'
 
 class JobType(enum.Enum):
-    ft = 'full_time'
-    pt = 'part_time'
+    ft = 'full time'
+    pt = 'part time'
     i = 'internship'
 
 class SkillType(enum.Enum):
@@ -59,10 +59,19 @@ User = Table(
     Column("role", Enum(Role), default='u'),
 )
 
+JobCategory = Table(
+    "job_categories",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("added_by", Integer, ForeignKey('users.id')),
+    Column("name", String(255), nullable=False, unique=True),
+)
+
 Job = Table(
     "jobs",
     metadata,
     Column("id", Integer, primary_key=True),
+    Column("category", String, ForeignKey('job_categories.name'), nullable=False),
     Column("created_by", Integer, ForeignKey('users.id')),
     Column("company_name", String(255), nullable=True),
     Column("job_title", String(255), nullable=True),
@@ -72,6 +81,8 @@ Job = Table(
     Column("job_count", Integer, nullable=True),
     Column("location", String(1024), nullable=True),
     Column("status", Enum(JobStatus), default='cr'),
+    Column("description_short", String(255), nullable=True),
+    Column("description_long", Text, nullable=True),
 )
 
 Skill = Table(

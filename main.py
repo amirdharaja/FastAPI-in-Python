@@ -12,6 +12,7 @@ from base import DATABASE, app
 from validation import (
     UserValidator,
     LoginValidator,
+    JobCategoryValidator,
     JobValidator,
     AppliedJobValidator,
     FavouriteJobValidator
@@ -24,7 +25,7 @@ from helpers import (
     verify_token_with_role,
 )
 
-from model import engine, User, Job, FavouriteJob, AppliedJob, Skill
+from model import engine, User, JobCategory, Job, FavouriteJob, AppliedJob, Skill
 
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind = engine)
@@ -189,6 +190,7 @@ async def create_job(job: JobValidator, token: str = Header(None)):
 
     query = Job.insert().values(
         created_by=authenticated_user['user_id'],
+        category=job.category,
         company_name=job.company_name,
         job_title=job.job_title,
         job_type=job.job_type,
@@ -197,10 +199,34 @@ async def create_job(job: JobValidator, token: str = Header(None)):
         job_count=job.job_count,
         location=job.location,
         status=job.status,
+        description_short=job.description_short,
+        description_long=job.description_long,
     )
     session.execute(query)
     session.commit()
     return {**job.dict()}
+
+
+@job_router.post('/category', response_model=JobCategoryValidator)
+async def create_category(category: JobCategoryValidator, token: str = Header(None)):
+    authenticated_user = verify_token_with_role(token, expected_role='recruiter')
+    if not authenticated_user:
+        response = {'detail':'UNAUTHORIZED ACCESS', 'status': 401}
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content=response)
+
+    query = JobCategory.insert().values(
+        added_by=authenticated_user['user_id'],
+        name=category.name,
+    )
+    session.execute(query)
+    session.commit()
+    return {**category.dict()}
+
+
+@job_router.get('/category', response_model=List[JobCategoryValidator])
+async def get_categories(skip: int = 0):
+    categories = JobCategory.select().offset(skip)
+    return await database.fetch_all(categories)
 
 
 @job_router.get('/{job_id}', response_model=JobValidator)
@@ -236,6 +262,8 @@ async def update_job(job_id: int, job: JobValidator, token: str = Header(None)):
         job_count = job.job_count if job.job_count else is_exist.job_count,
         location = job.location if job.location else is_exist.location,
         status = job.status if job.status else is_exist.status,
+        description_short = job.description_short if job.description_short else is_exist.description_short,
+        description_long = job.description_long if job.description_long else is_exist.description_long,
     )
     last_record_id = await database.execute(query)
     await database.execute(query)
