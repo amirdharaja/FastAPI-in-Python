@@ -198,7 +198,7 @@ async def create_job(job: JobValidator, token: str = Header(None)):
         experiance_max=job.experiance_max,
         job_count=job.job_count,
         location=job.location,
-        status=job.status,
+        status='cr',
         description_short=job.description_short,
         description_long=job.description_long,
     )
@@ -287,7 +287,9 @@ async def delete_job(job_id: int, token: str = Header(None)):
         response = {'detail':'UNAUTHORIZED ACCESS(YOU CAN DELETE YOUR JOB ONLY)', 'status': 401}
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content=response)
 
-    query = Job.delete().where(Job.c.id == job_id)
+    query = Job.update().where(Job.c.id == job_id).values(
+        status = 'd'
+    )
     await database.execute(query)
     response = {'detail':"JOB ID: {} DELETED SUCCESSFULLY".format(job_id), 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
@@ -297,6 +299,34 @@ async def delete_job(job_id: int, token: str = Header(None)):
 async def get_all_jobs(skip: int = 0, paginate: int = 20):
     jobs = Job.select().offset(skip).limit(paginate)
     return await database.fetch_all(jobs)
+
+
+@job_router.get('/my/posted', response_model=List[JobValidator])
+async def get_all_my_posted_jobs(token: str = Header(None)):
+    authenticated_user = verify_token_with_role(token, expected_role='recruiter')
+    if not authenticated_user:
+        response = {'detail':'UNAUTHORIZED ACCESS', 'status': 401}
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content=response)
+
+    jobs = session.query(Job).filter(Job.c.created_by == authenticated_user['user_id'])
+    all_jobs = []
+    for job in jobs:
+        if job and job.status.value == 'deleted':
+            pass
+        else:
+            all_jobs.append({
+                'id': job.id,
+                'company_name': job.company_name,
+                'job_title': job.job_title,
+                'job_type': job.job_type.value,
+                'experiance_min': job.experiance_min,
+                'experiance_max': job.experiance_max,
+                'job_count': job.job_count,
+                'location': job.location,
+                'job_status': job.status.value if job.status else 'NA',
+            })
+    response = {'Jobs': all_jobs, 'status': 200}
+    return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
 
 @user_router.post('/jobs/{job_id}', response_model=AppliedJobValidator)
@@ -320,7 +350,7 @@ async def apply_job(job_id: int, job: AppliedJobValidator, token: str = Header(N
     query = AppliedJob.insert().values(
         user_id=authenticated_user['user_id'],
         job_id=job_id,
-        status='a',
+        status='applied',
     )
     apply = AppliedJob.insert().values(user_id=authenticated_user['user_id'], job_id=job_id, status='a')
     session.execute(apply)
@@ -376,6 +406,7 @@ async def get_my_job(apply_id: int, token: str = Header(None)):
     response = {'Job details': data, 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
+
 @user_router.get('/jobs/my')
 async def get_my_all_jobs(token: str = Header(None)):
     authenticated_user = verify_token(token)
@@ -388,8 +419,6 @@ async def get_my_all_jobs(token: str = Header(None)):
         response = {'detail':  'JOBS NOT FOUND', 'status': 404}
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=response)
 
-    # query = AppliedJob.delete()
-    # await database.execute(query)
     job_ids = pluck(my_jobs, 'job_id')
     job_ids = set(job_ids)
     total_jobs = len(job_ids)
@@ -408,7 +437,7 @@ async def get_my_all_jobs(token: str = Header(None)):
                         'id': job.id,
                         'company_name': job.company_name,
                         'job_title': job.job_title,
-                        'job_type': job.job_type,
+                        'job_type': job.job_type.value,
                         'experiance_min': job.experiance_min,
                         'experiance_max': job.experiance_max,
                         'job_count': job.job_count,
@@ -418,8 +447,9 @@ async def get_my_all_jobs(token: str = Header(None)):
                 }
                 my_all_jobs.append(data)
 
-    response = {'Total': total_jobs, 'My Jobs': my_all_jobs, 'status': 200}
+    response = {'Total': total_jobs, 'Jobs': my_all_jobs, 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
+
 
 @user_router.post('/favourite/{job_id}')
 async def add_favourite(job_id: int, token: str = Header(None)):
@@ -441,6 +471,7 @@ async def add_favourite(job_id: int, token: str = Header(None)):
     response = {'detail':'FAVOURITE JOB ADDED', 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
+
 @user_router.delete('/favourite/{favourite_id}')
 async def remove_favourite(favourite_id: int, token: str = Header(None)):
     authenticated_user = verify_token(token)
@@ -453,6 +484,7 @@ async def remove_favourite(favourite_id: int, token: str = Header(None)):
     response = {'detail':"FAVOURITE JOB REMOVED", 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
+
 @user_router.get('/favourites/all')
 async def get_favourite(token: str = Header(None)):
     authenticated_user = verify_token(token)
@@ -461,7 +493,6 @@ async def get_favourite(token: str = Header(None)):
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content=response)
 
     favourites = session.query(FavouriteJob).all()
-    print(favourites)
     all_favourite = []
     for d in favourites:
         data = {
@@ -472,6 +503,7 @@ async def get_favourite(token: str = Header(None)):
         all_favourite.append(data)
     response = {'Favourites':all_favourite, 'status': 200}
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
+
 
 app.include_router(user_router, prefix='/users')
 app.include_router(auth_router, prefix='/auth')

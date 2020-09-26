@@ -41,9 +41,11 @@ class SkillLevel(enum.Enum):
 class JobStatus(enum.Enum):
     cr = 'created'
     a = 'applied'
+    s = 'selected'
     r = 'rejected'
     f = 'filled'
     cl = 'closed'
+    d = 'deleted'
 
 
 User = Table(
